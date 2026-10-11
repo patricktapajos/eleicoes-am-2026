@@ -1,0 +1,18 @@
+# Arquivos não enviados no upload do projeto para a Vercel (CLI `vercel`).
+# O banco é regerado no build (vercel/build.sh); o .zip de origem precisa ir.
+.venv/
+venv/
+.vercel/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+data/processed/
+data/raw/*.csv
+**/*.Zone.Identifier
+docker/
+Dockerfile
+docker-compose.yml
+.dockerignore
+public/
+.git/
+.gitignore

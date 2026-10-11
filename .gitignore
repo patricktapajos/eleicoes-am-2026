@@ -8,3 +8,5 @@ data/processed/
 *.sqlite3
 data/raw/*.csv
 data/raw/*.zip:Zone.Identifier
+.vercel/
+public/

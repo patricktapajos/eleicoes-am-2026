@@ -35,9 +35,13 @@ além de uma API JSON e exportação CSV.
 ├── Dockerfile
 ├── docker-compose.yml
 ├── docker/entrypoint.sh
+├── vercel.json              # config do deploy na Vercel (sem Docker)
+├── vercel/build.sh          # build da Vercel: ETL + espelha static em public/
+├── .python-version          # Python fixado para a Vercel (3.14)
+├── .vercelignore            # arquivos fora do upload para a Vercel
 ├── requirements.txt
 ├── run.py                   # servidor de desenvolvimento
-└── wsgi.py                  # ponto de entrada WSGI (gunicorn)
+└── wsgi.py                  # ponto de entrada WSGI (gunicorn / Vercel)
 ```
 
 ## Execução local (sem Docker)
@@ -119,6 +123,65 @@ docker build -t eleicoes2026:latest .
 docker run --rm -p 5000:5000 eleicoes2026:latest
 ```
 
+## Deploy na Vercel (sem Docker)
+
+O projeto também pode ser publicado na Vercel sem usar Docker — mantendo o
+deploy com Docker acima intacto. A Vercel detecta o Flask pelo `requirements.txt`,
+usa o `wsgi.py` da raiz como entrypoint e roda tudo em uma única Vercel Function.
+
+### Como funciona o build
+
+O `vercel.json` define `buildCommand: bash vercel/build.sh`, que:
+
+1. **Gera o SQLite** (`data/processed/eleicao.db`) a partir do `.zip` versionado
+   em `data/raw/` — o diretório `data/processed/` é ignorado pelo Git, então o
+   banco é criado no build e embutido no bundle da função (`includeFiles`).
+2. **Espelha `app/static/` em `public/static/`** — a Vercel ignora o
+   `static_folder` do Flask e serve estáticos de `public/` pela CDN.
+3. Em ambiente Vercel (`VERCEL=1`), remove o CSV extraído (94 MB) para reduzir
+   o bundle (o `.zip` de 15 MB continua versionado).
+
+### Publicando
+
+**Opção A — Git (recomendado):** suba o repositório para GitHub/GitLab/Bitbucket
+ e importe o projeto em <https://vercel.com/new>. Detecção automática do Flask;
+ nada mais a configurar.
+
+**Opção B — CLI:**
+
+```bash
+npm i -g vercel
+vercel          # primeiro deploy (cria o projeto)
+vercel --prod   # promoção para produção
+```
+
+Para testar localmente com o mesmo runtime da Vercel:
+
+```bash
+vercel dev
+```
+
+### Variáveis de ambiente na Vercel
+
+| Variável | Quando | Descrição |
+| --- | --- | --- |
+| `FORCE_ETL` | build | `1` força o reprocessamento do CSV a cada build |
+| `DB_PATH` | runtime | Normalmente não é necessário; o padrão já aponta para o banco embutido |
+| `SECRET_KEY` | runtime | Chave secreta do Flask (opcional) |
+
+### Observações
+
+- **Sistema de arquivos somente leitura:** o bundle da função é somente leitura;
+  o app já abre o SQLite em modo `ro` (`file:...?mode=ro`), então tudo funciona.
+  A migração de esquema automática é ignorada silenciosamente nesse ambiente —
+  o banco gerado no build já sai com o esquema completo.
+- **Limite de bundle:** o padrão é 500 MB não compactado; o banco (≈94 MB) +
+  dependências (≈165 MB) ficam folgados. `excludeFiles` remove Docker/`__pycache__`.
+- **Duração da função:** `maxDuration: 120` (o limite do plano Hobby é 300 s) —
+  folga para a exportação CSV da base inteira.
+- **Atualizando os dados:** quando o `.zip` de origem mudar no Git, basta um novo
+  deploy — o ETL roda de novo no build.
+
 ## Páginas e endpoints
 
 | Rota | Descrição |
@@ -151,7 +214,7 @@ O ETL deriva, a partir do número votável (`nr_votavel`):
 | `RAW_DIR` | `data/raw` | Diretório do arquivo de origem |
 | `PROCESSED_DIR` | `data/processed` | Diretório de saída do ETL |
 | `ZIP_PATH` | `data/raw/votacao_secao-...csv.zip` | Caminho do `.zip` |
-| `FORCE_ETL` | `0` | Se `1`, reprocessa o CSV na inicialização do contêiner |
+| `FORCE_ETL` | `0` | Se `1`, reprocessa o CSV na inicialização do contêiner (Docker) ou no build da Vercel |
 
 ## Resultado do ETL (base de exemplo)
 

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "bash vercel/build.sh",
+  "functions": {
+    "wsgi.py": {
+      "maxDuration": 120,
+      "includeFiles": "data/processed/**",
+      "excludeFiles": "{docker/**,Dockerfile,docker-compose.yml,.dockerignore,**/__pycache__/**,**/*.pyc,**/*.Zone.Identifier,README.md}"
+    }
+  }
+}
