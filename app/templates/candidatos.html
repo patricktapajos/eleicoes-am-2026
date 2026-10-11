@@ -36,15 +36,15 @@
       <tbody>
         {% for c in ranking %}
         <tr>
-          <td class="rank">{{ paginacao.inicio + loop.index0 }}</td>
-          <td>{{ c.nr_votavel }}</td>
-          <td>{{ c.nm_votavel }}</td>
-          <td><span class="tag tag--partido">{{ c.sg_partido }}</span></td>
-          <td class="num">{{ c.total | num }}</td>
-          <td class="num">{{ (c.total / total_validos * 100) | pct }}</td>
+          <td class="rank" data-label="Posição">{{ paginacao.inicio + loop.index0 }}</td>
+          <td data-label="Nº">{{ c.nr_votavel }}</td>
+          <td data-label="Candidato">{{ c.nm_votavel }}</td>
+          <td><span class="tag tag--partido" data-label="Partido">{{ c.sg_partido }}</span></td>
+          <td class="num" data-label="Votos">{{ c.total | num }}</td>
+          <td class="num" data-label="% válidos">{{ (c.total / total_validos * 100) | pct }}</td>
         </tr>
         {% else %}
-        <tr><td colspan="6" class="vazio">Nenhum candidato encontrado.</td></tr>
+        <tr><td colspan="6" class="vazio" data-label="Resultado">Nenhum candidato encontrado.</td></tr>
         {% endfor %}
       </tbody>
     </table>

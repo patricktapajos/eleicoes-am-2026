@@ -27,12 +27,13 @@
       <tbody>
         {% for z in zonas %}
         <tr>
-          <td><strong>{{ z.rotulo }}</strong></td>
-          <td class="num">{{ z.locais }}</td>
-          <td class="num">{{ z.secoes }}</td>
-          <td class="num">{{ z.total | num }}</td>
-          <td class="num">{{ (z.total / total_geral * 100) | pct }}</td>
-          <td>
+          <td data-label="Zona"><strong>{{ z.rotulo }}</strong></td>
+          <td class="num" data-label="Locais">{{ z.locais }}</td>
+          <td class="num" data-label="Seções">{{ z.secoes }}</td>
+          <td class="num" data-label="Votos">{{ z.total | num }}</td>
+          <td class="num" data-label="% total">{{ (z.total / total_geral * 100) | pct }}</td>
+          <td data-label="Participação">
+            <span class="barra-progresso-label">{{ (z.total / total_geral * 100) | round(1) }}%</span>
             <div class="barra-progresso">
               <i style="width: {{ (z.total / total_geral * 100) | round(1) }}%"></i>
             </div>
@@ -40,14 +41,14 @@
         </tr>
         {% endfor %}
       </tbody>
-      <tfoot>
+      <tfoot class="foot-row">
         <tr>
-          <th>Total</th>
-          <th class="num">{{ zonas | sum(attribute='locais') }}</th>
-          <th class="num">{{ zonas | sum(attribute='secoes') }}</th>
-          <th class="num">{{ total_geral | num }}</th>
-          <th class="num">100,0%</th>
-          <th></th>
+          <td data-label="Total"><strong>Total</strong></td>
+          <td class="num" data-label="Locais">{{ zonas | sum(attribute='locais') }}</td>
+          <td class="num" data-label="Seções">{{ zonas | sum(attribute='secoes') }}</td>
+          <td class="num" data-label="Votos">{{ total_geral | num }}</td>
+          <td class="num" data-label="% total">100,0%</td>
+          <td data-label=""></td>
         </tr>
       </tfoot>
     </table>

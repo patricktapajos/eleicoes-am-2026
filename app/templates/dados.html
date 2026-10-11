@@ -94,21 +94,21 @@
       <tbody>
         {% for l in linhas %}
         <tr>
-          <td class="num">{{ l.nr_zona }}</td>
+          <td class="num" data-label="Zona">{{ l.nr_zona }}</td>
           <td>{{ l.nm_local_votacao }}</td>
-          <td class="num">{{ l.nr_votavel }}</td>
+          <td class="num" data-label="Nº">{{ l.nr_votavel }}</td>
           <td>{{ l.nm_votavel }}</td>
-          <td><span class="tag tag--partido">{{ l.sg_partido }}</span></td>
+          <td><span class="tag tag--partido" data-label="Partido">{{ l.sg_partido }}</span></td>
           {% if por_secao %}
-          <td class="num">{{ l.nr_secao }}</td>
+          <td class="num" data-label="Seção">{{ l.nr_secao }}</td>
           {% else %}
-          <td class="num">{{ l.secoes }}</td>
+          <td class="num" data-label="Seções">{{ l.secoes }}</td>
           {% endif %}
-          <td><span class="tag tag--{{ l.categoria | lower }}">{{ l.categoria }}</span></td>
-          <td class="num"><strong>{{ l.qt_votos | num }}</strong></td>
+          <td><span class="tag tag--{{ l.categoria | lower }}" data-label="Categoria">{{ l.categoria }}</span></td>
+          <td class="num" data-label="Votos"><strong>{{ l.qt_votos | num }}</strong></td>
         </tr>
         {% else %}
-        <tr><td colspan="8" class="vazio">Nenhum registro para os filtros selecionados.</td></tr>
+        <tr><td colspan="8" class="vazio" data-label="">Nenhum registro para os filtros selecionados.</td></tr>
         {% endfor %}
       </tbody>
     </table>

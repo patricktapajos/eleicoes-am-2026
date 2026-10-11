@@ -27,13 +27,27 @@ body {
 .topbar {
   background: linear-gradient(120deg, var(--azul), var(--azul-claro));
   color: #fff;
-  padding: 1.1rem 1.8rem;
+  padding: 1rem 1.4rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: .6rem .8rem;
   align-items: center;
   justify-content: space-between;
   box-shadow: var(--sombra);
+}
+
+.topbar__brand p { margin: 0; }
+
+@media (max-width: 640px) {
+  .topbar { padding: .7rem .9rem; }
+  .topbar__brand { gap: .5rem; }
+  .topbar__brand h1 { font-size: 1.05rem; }
+  .topbar__brand p { font-size: .72rem; opacity: .85; }
+  .logo { font-size: 1.6rem; }
+  .topbar__nav a {
+    padding: .35rem .6rem;
+    font-size: .78rem;
+  }
 }
 .topbar__brand { display: flex; align-items: center; gap: .9rem; }
 .topbar__brand h1 { margin: 0; font-size: 1.3rem; letter-spacing: .2px; }
@@ -67,6 +81,7 @@ body {
 .grid { display: grid; gap: 1.1rem; }
 .grid--kpis { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
 .grid--2 { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+.card__chart { min-height: 280px; }
 
 /* ---------------------------------------------------------- big numbers */
 .kpi {
@@ -124,6 +139,8 @@ body {
 
 /* --------------------------------------------------------------- tabelas */
 .tabela-wrap { overflow-x: auto; }
+
+/* ---- Tabela padrão (tela larga) ---- */
 table.tabela {
   width: 100%;
   border-collapse: collapse;
@@ -141,11 +158,88 @@ table.tabela th {
   font-size: .76rem;
   text-transform: uppercase;
   letter-spacing: .4px;
-  position: sticky;
-  top: 0;
+  font-weight: 700;
 }
 table.tabela tbody tr:hover { background: #f7fafd; }
 table.tabela td.num, table.tabela th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---- Em telas estreitas: a tabela vira cards ---- */
+@media (max-width: 760px) {
+  table.tabela thead { display: none; }
+  table.tabela, table.tabela tbody, table.tabela tr, table.tabela td,
+  table.tabela tfoot, table.tabela tr.foot-row {
+    display: block;
+    width: 100%;
+  }
+  table.tabela tr {
+    margin-bottom: .75rem;
+    border: 1px solid var(--cinza-borda);
+    border-radius: 12px;
+    padding: .6rem .5rem .5rem;
+    background: #fff;
+    box-shadow: var(--sombra);
+  }
+  table.tabela td {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: .4rem;
+    text-align: right;
+    padding: .42rem 0;
+    border-bottom: 1px solid var(--cinza-borda);
+    white-space: normal;
+    font-size: .88rem;
+  }
+  table.tabela td:last-child { border-bottom: none; }
+  table.tabela td::before {
+    content: attr(data-label);
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+    letter-spacing: .4px;
+    text-align: left;
+    flex: 0 0 auto;
+    margin-right: 0;
+    word-break: break-word;
+  }
+  table.tabela td.num::before { font-variant-numeric: normal; }
+  table.tabela td.num { text-align: right; }
+  table.tabela td .tag {
+    flex: 0 0 auto;
+  }
+  table.tabela td .barra-progresso--mobi {
+    flex: 1 1 auto;
+    margin-top: .25rem;
+  }
+  .barra-progresso-label {
+    flex: 0 0 auto;
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--azul);
+    white-space: nowrap;
+  }
+  /* Em telas muito estreitas, os números de tags estouram; permitir wrap na label do tag */
+  table.tabela td .tag {
+    font-size: .65rem;
+    padding: .1rem .4rem;
+  }
+  table.tabela tbody tr:hover { background: #fff; }
+  table.tabela tfoot tr {
+    margin: 0;
+    padding: .5rem .6rem;
+    background: #eef3fa;
+    border: 1px solid var(--cinza-borda);
+    border-radius: 12px;
+    font-size: .78rem;
+    color: var(--azul);
+  }
+  table.tabela tfoot tr td {
+    border-bottom: none;
+    font-size: .78rem;
+    font-weight: 700;
+  }
+}
 .rank { font-weight: 800; color: var(--texto-suave); }
 
 .tag {
@@ -167,15 +261,18 @@ table.tabela td.num, table.tabela th.num { text-align: right; font-variant-numer
 .filtros {
   display: flex;
   flex-wrap: wrap;
-  gap: .7rem;
+  gap: .6rem .7rem;
   align-items: flex-end;
   background: var(--cinza-card);
   border: 1px solid var(--cinza-borda);
   border-radius: 14px;
   padding: 1rem 1.1rem;
   box-shadow: var(--sombra);
-  margin-bottom: 1.1rem;
+  margin-bottom: 1rem;
 }
+
+.filtros .campo--multi { align-self: stretch; }
+.filtros .campo--multi .dica { order: 3; }
 .campo { display: flex; flex-direction: column; gap: .25rem; }
 .campo label { font-size: .72rem; font-weight: 700; text-transform: uppercase; color: var(--texto-suave); letter-spacing: .4px; }
 .campo input, .campo select {
@@ -253,20 +350,99 @@ label .dica { font-weight: 500; text-transform: none; letter-spacing: 0; }
 }
 .paginacao__links span.disabled { color: #b6c1cd; background: #f5f7fa; }
 
-.barra-progresso { height: 8px; border-radius: 999px; background: #e6ecf4; overflow: hidden; margin-top: .5rem; }
+.barra-progresso { height: 8px; border-radius: 999px; background: #e6ecf4; overflow: hidden; margin-top: .5rem; width: 100%; }
 .barra-progresso > i { display: block; height: 100%; background: var(--azul-claro); }
+
+.barra-progresso--mobi { height: 8px; }
 
 .rodape {
   text-align: center;
   font-size: .78rem;
   color: var(--texto-suave);
-  padding: 1.4rem;
+  padding: 1.2rem;
   border-top: 1px solid var(--cinza-borda);
   background: #fff;
 }
 .vazio { text-align: center; color: var(--texto-suave); padding: 2rem; }
 
+/* ------------------------------------------------------------- paginação mobile */
+@media (max-width: 760px) {
+  .paginacao {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .4rem;
+  }
+  .paginacao__links {
+    flex-wrap: wrap;
+  }
+  .paginacao__links a,
+  .paginacao__links span {
+    padding: .4rem .7rem;
+    font-size: .82rem;
+  }
+}
+
 @media (max-width: 640px) {
   .kpi__valor { font-size: 1.8rem; }
-  .topbar { padding: .9rem 1rem; }
+  .topbar { padding: .7rem .9rem; }
+  .topbar__brand { gap: .5rem; }
+  .topbar__brand h1 { font-size: 1.05rem; }
+  .topbar__brand p { font-size: .72rem; opacity: .85; }
+  .logo { font-size: 1.6rem; }
+  .topbar__nav a {
+    padding: .35rem .6rem;
+    font-size: .78rem;
+  }
+  .container { padding: 1rem .7rem 2rem; }
+  .secao-titulo { margin: 1.4rem 0 .7rem; font-size: 1.05rem; padding-left: .5rem; }
+  .card { padding: .9rem 1rem 1rem; }
+  .card h3 { margin-bottom: .5rem; }
+  .card__chart { min-height: 260px; height: 320px; }
+  .filtros { padding: .8rem .85rem; gap: .5rem; }
+  .filtros .campo { gap: .15rem; }
+  .filtros label { font-size: .66rem; }
+  .filtros input,
+  .filtros select {
+    min-width: 0;
+    width: 100%;
+    padding: .45rem .55rem;
+    font-size: .85rem;
+  }
+  .campo--multi input { min-width: 0; }
+  select.multi {
+    min-width: 0;
+    height: auto;
+    min-height: 90px;
+  }
+  .botao {
+    width: 100%;
+    text-align: center;
+    padding: .5rem 1rem;
+    font-size: .85rem;
+  }
+  .kpi__rotulo { font-size: .72rem; letter-spacing: .4px; }
+  .kpi__sub { font-size: .72rem; }
+  .kpi__valor { font-size: 1.6rem; }
+  .kpi { padding: .8rem .9rem; }
+  .tag { font-size: .68rem; }
+}
+
+@media (pointer: coarse) {
+  .filtros input[type="checkbox"] { min-width: 12px; height: 12px; }
+}
+
+/* Permitir scroll horizontal só quando realmente absoluto em mobile */
+@media (max-width: 760px) {
+  .tabela-wrap { overflow-x: visible; }
+}
+
+/* Em telas muito estreitas, os números de tags estouram; permitir wrap na label do tag */
+@media (max-width: 480px) {
+  table.tabela td {
+    word-break: break-word;
+  }
+  table.tabela td .tag {
+    font-size: .65rem;
+    padding: .1rem .4rem;
+  }
 }

@@ -87,11 +87,11 @@
       <tbody>
         {% for local in top_locais %}
         <tr>
-          <td class="rank">{{ loop.index }}</td>
-          <td>{{ local.rotulo }}</td>
-          <td class="num">{{ local.nr_zona }}</td>
-          <td class="num">{{ local.total | num }}</td>
-          <td class="num">{{ (local.total / kpis.total_votos * 100) | pct }}</td>
+          <td class="rank" data-label="Posição">{{ loop.index }}</td>
+          <td data-label="Local de votação">{{ local.rotulo }}</td>
+          <td class="num" data-label="Zona">{{ local.nr_zona }}</td>
+          <td class="num" data-label="Votos">{{ local.total | num }}</td>
+          <td class="num" data-label="% total">{{ (local.total / kpis.total_votos * 100) | pct }}</td>
         </tr>
         {% endfor %}
       </tbody>
