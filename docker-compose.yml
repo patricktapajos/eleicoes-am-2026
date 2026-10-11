@@ -1,0 +1,45 @@
+services:
+  web:
+    build: .
+    image: eleicoes2026:latest
+    container_name: eleicoes2026-web
+    ports:
+      - "5000:5000"
+    environment:
+      DB_PATH: /app/data/processed/eleicao.db
+      # Defina FORCE_ETL=1 para reprocessar o CSV a cada inicialização.
+      FORCE_ETL: "0"
+      # Recarrega templates/estáticos e expõe tracebacks durante o desenvolvimento.
+      FLASK_DEBUG: "1"
+    volumes:
+      # Código-fonte montado do host: as alterações em app/ e etl/ refletem no
+      # container imediatamente, sem precisar rebuildar a imagem.
+      - ./app:/app/app
+      - ./etl:/app/etl
+      - ./esquema.py:/app/esquema.py
+      # Persiste o banco agregado entre reinícios (fica fora do bind mount).
+      - dados_processados:/app/data/processed
+    # gunicorn com --reload: reinicia os workers quando o código muda.
+    command:
+      - gunicorn
+      - --bind=0.0.0.0:5000
+      - --workers=2
+      - --threads=4
+      - --timeout=120
+      - --reload
+      - --access-logfile=-
+      - wsgi:app
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:5000/api/resumo').status==200 else 1)"
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  dados_processados:

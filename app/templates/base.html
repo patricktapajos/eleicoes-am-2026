@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Eleições 2026{% endblock %} · Painel de Votação</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+<body data-page="{% block page_id %}{{ pagina_atual }}{% endblock %}">
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="logo">🗳️</span>
+      <div>
+        <h1>Painel de Votação</h1>
+        <p>
+          {{ meta.ds_cargo }} · {{ meta.ds_eleicao }} · {{ meta.nm_municipio }}/{{ meta.sg_uf }}
+          · {{ meta.nr_turno }}º turno
+        </p>
+      </div>
+    </div>
+    <nav class="topbar__nav">
+      <a href="{{ url_for('main.dashboard') }}" class="{{ 'is-active' if pagina_atual == 'dashboard' }}">Visão geral</a>
+      <a href="{{ url_for('main.candidatos') }}" class="{{ 'is-active' if pagina_atual == 'candidatos' }}">Candidatos</a>
+      <a href="{{ url_for('main.zonas') }}" class="{{ 'is-active' if pagina_atual == 'zonas' }}">Zonas</a>
+      <a href="{{ url_for('main.dados') }}" class="{{ 'is-active' if pagina_atual == 'dados' }}">Dados agregados</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    {% block conteudo %}{% endblock %}
+  </main>
+
+  <footer class="rodape">
+    <p>
+      Fonte: {{ meta.arquivo_origem }} · Processado em {{ meta.processado_em }} ·
+      {{ meta.linhas_origem }} registros de origem → {{ meta.linhas_agregadas }} linhas agregadas
+    </p>
+  </footer>
+</body>
+</html>

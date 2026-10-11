@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+data/processed/
+*.db
+*.sqlite3
+data/raw/*.csv
+data/raw/*.zip:Zone.Identifier

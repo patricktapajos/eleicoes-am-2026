@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block titulo %}Dados agregados{% endblock %}
+
+{% block conteudo %}
+<h2 class="secao-titulo">Base agregada de votos</h2>
+<p class="kpi__sub" style="margin-top:-.6rem">
+  Agrupamento por <strong>nr_zona</strong>, <strong>nm_local_votacao</strong>,
+  <strong>nr_votavel</strong> e <strong>nm_votavel</strong>{% if por_secao %},
+  <strong>nr_secao</strong>{% else %} <em>(sem seção)</em>{% endif %},
+  totalizando <strong>qt_votos</strong>. Use "Incluir seção" para detalhar por seção.
+</p>
+
+<form class="filtros" method="get" action="{{ url_for('main.dados') }}">
+  <div class="campo">
+    <label for="zona">Zona</label>
+    <select id="zona" name="zona">
+      <option value="">Todas</option>
+      {% for z in zonas %}
+      <option value="{{ z }}" {{ 'selected' if filtros.zona == z|string }}>{{ z }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="campo campo--multi">
+    <label for="local-busca">Local de votação <span class="dica">(vários)</span></label>
+    <input type="text" id="local-busca" data-filter-for="local"
+           placeholder="Filtre digitando..." autocomplete="off">
+    <select id="local" name="local" multiple size="6" class="multi"
+            aria-label="Local de votação — selecione vários">
+      {% for l in locais %}
+      <option value="{{ l }}" {{ 'selected' if l in filtros.local }}>{{ l }}</option>
+      {% endfor %}
+    </select>
+    <small class="dica">Selecione vários: Ctrl/Cmd + clique (a busca acima filtra a lista)</small>
+  </div>
+  <div class="campo campo--multi">
+    <label for="candidato-busca">Candidato <span class="dica">(vários)</span></label>
+    <input type="text" id="candidato-busca" data-filter-for="candidato"
+           placeholder="Filtre digitando..." autocomplete="off">
+    <select id="candidato" name="candidato" multiple size="6" class="multi"
+            aria-label="Candidato — selecione vários">
+      {% for cd in candidatos_lista %}
+      <option value="{{ cd.nr_votavel }}" {{ 'selected' if cd.nr_votavel in filtros.candidato }}>{{ cd.nr_votavel }} — {{ cd.nm_votavel }} ({{ cd.sg_partido }})</option>
+      {% endfor %}
+    </select>
+    <small class="dica">Selecione vários: Ctrl/Cmd + clique (a busca acima filtra a lista)</small>
+  </div>
+  <div class="campo">
+    <label for="partido">Partido</label>
+    <select id="partido" name="partido">
+      <option value="">Todos</option>
+      {% for p in partidos %}
+      <option value="{{ p.nr_partido }}" {{ 'selected' if filtros.partido == p.nr_partido }}>{{ p.rotulo }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="campo">
+    <label for="categoria">Categoria</label>
+    <select id="categoria" name="categoria">
+      <option value="">Todas</option>
+      {% for c in categorias %}
+      <option value="{{ c }}" {{ 'selected' if filtros.categoria == c }}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="campo">
+    <label for="q">Busca livre</label>
+    <input type="text" id="q" name="q" value="{{ filtros.q }}" placeholder="Candidato, nº ou local">
+  </div>
+  <div class="campo">
+    <label>Agrupamento</label>
+    <label class="check">
+      <input type="checkbox" id="por_secao" name="por_secao" value="1" {{ 'checked' if por_secao }}>
+      Incluir seção
+    </label>
+  </div>
+  <button class="botao" type="submit">Aplicar</button>
+  {% if filtros.zona or filtros.local or filtros.candidato or filtros.partido or filtros.categoria or filtros.q or por_secao %}
+  <a class="botao botao--secundario" href="{{ url_for('main.dados') }}">Limpar</a>
+  {% endif %}
+  <a class="botao botao--secundario" href="{{ url_for('main.export_csv', **filtros) }}">⬇ Exportar CSV</a>
+</form>
+
+<div class="card">
+  <div class="tabela-wrap">
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th class="num">Zona</th><th>Local de votação</th><th class="num">Nº</th>
+          <th>Votável</th><th>Partido</th>
+          {% if por_secao %}<th class="num">Seção</th>{% else %}<th class="num">Seções</th>{% endif %}
+          <th>Categoria</th><th class="num">Votos</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in linhas %}
+        <tr>
+          <td class="num">{{ l.nr_zona }}</td>
+          <td>{{ l.nm_local_votacao }}</td>
+          <td class="num">{{ l.nr_votavel }}</td>
+          <td>{{ l.nm_votavel }}</td>
+          <td><span class="tag tag--partido">{{ l.sg_partido }}</span></td>
+          {% if por_secao %}
+          <td class="num">{{ l.nr_secao }}</td>
+          {% else %}
+          <td class="num">{{ l.secoes }}</td>
+          {% endif %}
+          <td><span class="tag tag--{{ l.categoria | lower }}">{{ l.categoria }}</span></td>
+          <td class="num"><strong>{{ l.qt_votos | num }}</strong></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="vazio">Nenhum registro para os filtros selecionados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="paginacao">
+    <span>Mostrando {{ paginacao.inicio }}–{{ paginacao.fim }} de {{ paginacao.total | num }} registros agregados</span>
+    <div class="paginacao__links">
+      {% if paginacao.tem_anterior %}
+        <a href="{{ url_for('main.dados', pagina=paginacao.pagina - 1, **filtros) }}">‹ Anterior</a>
+      {% else %}<span class="disabled">‹ Anterior</span>{% endif %}
+      <span>{{ paginacao.pagina }} / {{ paginacao.paginas }}</span>
+      {% if paginacao.tem_proxima %}
+        <a href="{{ url_for('main.dados', pagina=paginacao.pagina + 1, **filtros) }}">Próxima ›</a>
+      {% else %}<span class="disabled">Próxima ›</span>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

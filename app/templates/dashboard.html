@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block titulo %}Visão geral{% endblock %}
+
+{% block conteudo %}
+<h2 class="secao-titulo">Números gerais</h2>
+<div class="grid grid--kpis">
+  <div class="kpi">
+    <div class="kpi__rotulo">Total de votos</div>
+    <div class="kpi__valor">{{ kpis.total_votos | num }}</div>
+    <div class="kpi__sub">soma da coluna qt_votos</div>
+  </div>
+  <div class="kpi kpi--verde">
+    <div class="kpi__rotulo">Votos válidos</div>
+    <div class="kpi__valor">{{ kpis.votos_validos | num }}</div>
+    <div class="kpi__sub">{{ share.votos_validos | pct }} do total</div>
+  </div>
+  <div class="kpi kpi--amarelo">
+    <div class="kpi__rotulo">Votos de legenda</div>
+    <div class="kpi__valor">{{ kpis.votos_legenda | num }}</div>
+    <div class="kpi__sub">{{ share.votos_legenda | pct }} do total</div>
+  </div>
+  <div class="kpi kpi--roxo">
+    <div class="kpi__rotulo">Votos brancos</div>
+    <div class="kpi__valor">{{ kpis.votos_branco | num }}</div>
+    <div class="kpi__sub">{{ share.votos_branco | pct }} do total</div>
+  </div>
+  <div class="kpi kpi--vermelho">
+    <div class="kpi__rotulo">Votos nulos</div>
+    <div class="kpi__valor">{{ kpis.votos_nulo | num }}</div>
+    <div class="kpi__sub">{{ share.votos_nulo | pct }} do total</div>
+  </div>
+  <div class="kpi kpi--verde">
+    <div class="kpi__rotulo">Candidatos</div>
+    <div class="kpi__valor">{{ kpis.total_candidatos | num }}</div>
+    <div class="kpi__sub">candidatos distintos</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__rotulo">Zonas eleitorais</div>
+    <div class="kpi__valor">{{ kpis.total_zonas | num }}</div>
+    <div class="kpi__sub">zonas em {{ meta.nm_municipio }}</div>
+  </div>
+  <div class="kpi kpi--roxo">
+    <div class="kpi__rotulo">Seções</div>
+    <div class="kpi__valor">{{ kpis.total_secoes | num }}</div>
+    <div class="kpi__sub">seções eleitorais</div>
+  </div>
+  <div class="kpi kpi--amarelo">
+    <div class="kpi__rotulo">Locais de votação</div>
+    <div class="kpi__valor">{{ kpis.total_locais | num }}</div>
+    <div class="kpi__sub">locais distintos</div>
+  </div>
+</div>
+
+<h2 class="secao-titulo">Composição do voto</h2>
+<div class="grid grid--2">
+  <div class="card">
+    <h3>Distribuição por tipo de voto</h3>
+    <div class="card__chart"><canvas id="graficoCategoria"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Votos por partido</h3>
+    <div class="card__chart"><canvas id="graficoPartido"></canvas></div>
+  </div>
+</div>
+
+<h2 class="secao-titulo">Rankings</h2>
+<div class="grid grid--2">
+  <div class="card">
+    <h3>10 candidatos mais votados</h3>
+    <div class="card__chart"><canvas id="graficoCandidatos"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Votos por zona eleitoral</h3>
+    <div class="card__chart"><canvas id="graficoZona"></canvas></div>
+  </div>
+</div>
+
+<h2 class="secao-titulo">Locais com mais votos</h2>
+<div class="card">
+  <div class="tabela-wrap">
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th>#</th><th>Local de votação</th><th class="num">Zona</th><th class="num">Votos</th><th class="num">% total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for local in top_locais %}
+        <tr>
+          <td class="rank">{{ loop.index }}</td>
+          <td>{{ local.rotulo }}</td>
+          <td class="num">{{ local.nr_zona }}</td>
+          <td class="num">{{ local.total | num }}</td>
+          <td class="num">{{ (local.total / kpis.total_votos * 100) | pct }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script id="page-data" type="application/json">
+{{ {
+  "categoria": por_categoria,
+  "partido": por_partido,
+  "candidatos": top_candidatos,
+  "zona": por_zona
+} | tojson }}
+</script>
+{% endblock %}

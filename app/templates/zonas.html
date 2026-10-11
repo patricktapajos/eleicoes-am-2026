@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block titulo %}Zonas eleitorais{% endblock %}
+
+{% block conteudo %}
+<h2 class="secao-titulo">Distribuição por zona eleitoral</h2>
+<div class="grid grid--2">
+  <div class="card">
+    <h3>Votos por zona</h3>
+    <div class="card__chart"><canvas id="graficoZonas"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Participação de cada zona</h3>
+    <div class="card__chart"><canvas id="graficoZonasPizza"></canvas></div>
+  </div>
+</div>
+
+<h2 class="secao-titulo">Detalhe das zonas</h2>
+<div class="card">
+  <div class="tabela-wrap">
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th>Zona</th><th class="num">Locais</th><th class="num">Seções</th>
+          <th class="num">Votos</th><th class="num">% total</th><th>Participação</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for z in zonas %}
+        <tr>
+          <td><strong>{{ z.rotulo }}</strong></td>
+          <td class="num">{{ z.locais }}</td>
+          <td class="num">{{ z.secoes }}</td>
+          <td class="num">{{ z.total | num }}</td>
+          <td class="num">{{ (z.total / total_geral * 100) | pct }}</td>
+          <td>
+            <div class="barra-progresso">
+              <i style="width: {{ (z.total / total_geral * 100) | round(1) }}%"></i>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Total</th>
+          <th class="num">{{ zonas | sum(attribute='locais') }}</th>
+          <th class="num">{{ zonas | sum(attribute='secoes') }}</th>
+          <th class="num">{{ total_geral | num }}</th>
+          <th class="num">100,0%</th>
+          <th></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<script id="page-data" type="application/json">
+{{ { "zona": zonas } | tojson }}
+</script>
+{% endblock %}

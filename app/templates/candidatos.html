@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block titulo %}Candidatos{% endblock %}
+
+{% block conteudo %}
+<h2 class="secao-titulo">Desempenho dos candidatos</h2>
+<div class="grid grid--2">
+  <div class="card">
+    <h3>15 candidatos mais votados</h3>
+    <div class="card__chart"><canvas id="graficoTopCandidatos"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Votos por partido (top 10)</h3>
+    <div class="card__chart"><canvas id="graficoPartidos"></canvas></div>
+  </div>
+</div>
+
+<h2 class="secao-titulo">Ranking completo</h2>
+<form class="filtros" method="get" action="{{ url_for('main.candidatos') }}">
+  <div class="campo">
+    <label for="busca">Buscar candidato</label>
+    <input type="text" id="busca" name="busca" value="{{ busca }}" placeholder="Nome do candidato">
+  </div>
+  <button class="botao" type="submit">Filtrar</button>
+  {% if busca %}<a class="botao botao--secundario" href="{{ url_for('main.candidatos') }}">Limpar</a>{% endif %}
+</form>
+
+<div class="card">
+  <div class="tabela-wrap">
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th>#</th><th>Nº</th><th>Candidato</th><th>Partido</th>
+          <th class="num">Votos</th><th class="num">% válidos</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in ranking %}
+        <tr>
+          <td class="rank">{{ paginacao.inicio + loop.index0 }}</td>
+          <td>{{ c.nr_votavel }}</td>
+          <td>{{ c.nm_votavel }}</td>
+          <td><span class="tag tag--partido">{{ c.sg_partido }}</span></td>
+          <td class="num">{{ c.total | num }}</td>
+          <td class="num">{{ (c.total / total_validos * 100) | pct }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="vazio">Nenhum candidato encontrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="paginacao">
+    <span>Mostrando {{ paginacao.inicio }}–{{ paginacao.fim }} de {{ paginacao.total }} candidatos</span>
+    <div class="paginacao__links">
+      {% if paginacao.tem_anterior %}
+        <a href="{{ url_for('main.candidatos', pagina=paginacao.pagina - 1, busca=busca) }}">‹ Anterior</a>
+      {% else %}<span class="disabled">‹ Anterior</span>{% endif %}
+      <span>{{ paginacao.pagina }} / {{ paginacao.paginas }}</span>
+      {% if paginacao.tem_proxima %}
+        <a href="{{ url_for('main.candidatos', pagina=paginacao.pagina + 1, busca=busca) }}">Próxima ›</a>
+      {% else %}<span class="disabled">Próxima ›</span>{% endif %}
+    </div>
+  </div>
+</div>
+
+<script id="page-data" type="application/json">
+{{ { "candidatos": top_candidatos, "partido": por_partido } | tojson }}
+</script>
+{% endblock %}
