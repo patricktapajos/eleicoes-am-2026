@@ -7,7 +7,10 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}" defer></script>
   <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
-  <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body data-page="{% block page_id %}{{ pagina_atual }}{% endblock %}">
   <header class="topbar">
